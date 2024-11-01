@@ -2,6 +2,7 @@ package pg
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -84,6 +85,9 @@ func (p *pg) ScanAllContext(ctx context.Context, dest interface{}, q db.Query, a
 
 	rows, err := p.QueryContext(ctx, q, args...)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errors.New("Nothing found")
+		}
 		return err
 	}
 
@@ -96,6 +100,9 @@ func (p *pg) ScanOneContext(ctx context.Context, dest interface{}, q db.Query, a
 
 	row, err := p.QueryContext(ctx, q, args...)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errors.New("Nothing found")
+		}
 		return err
 	}
 
